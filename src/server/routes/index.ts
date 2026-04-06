@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {StatusCodes} from 'http-status-codes';
-import { ProdutosController } from "../controllers";
+import { ProdutosController, AuthController } from "../controllers";
 const router = Router();
 
 router.get('/', (_, res) => {
@@ -12,4 +12,6 @@ router.get('/produtos/:id', ProdutosController.getByIdValidation, ProdutosContro
 router.put('/produtos/:id', ProdutosController.updateByIdValidation, ProdutosController.updateById);
 router.delete('/produtos/:id', ProdutosController.deleteByIdValidation, ProdutosController.deleteById);
 
+router.post('/login',AuthController.loginValidation, AuthController.login);
+router.post('/usuarios',AuthController.createValidation, AuthController.create);
 export {router};

@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import * as yup from 'yup';
 import { validation } from '../../shared/middleware';
 import { IProduto } from '../../database/models';
+import { ProdutosProvider } from '../../database/providers/produtos';
 
 
 interface IParamProps {
@@ -19,8 +20,23 @@ export const updateByIdValidation = validation(getSchema => ({
     id: yup.number().integer().required().moreThan(0),
   })),
 }));
-export const updateById = async (req:Request<IParamProps,{}, IBodyProps>,res: Response) =>{
-  console.log(req.params);
-  console.log(req.body);
-  return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send('Não Implementado!');
+export const updateById = async (req: Request<IParamProps, {}, IBodyProps>, res: Response) => {
+  if (!req.params.id) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      errors: {
+        default: 'O parâmetro "id" precisa ser informado.'
+      }
+    });
+  }
+
+  const result = await ProdutosProvider.updateById(req.params.id, req.body);
+  if (result instanceof Error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      errors: {
+        default: result.message
+      }
+    });
+  }
+
+  return res.status(StatusCodes.NO_CONTENT).json(result);
 };
