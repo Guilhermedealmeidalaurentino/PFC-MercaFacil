@@ -7,7 +7,7 @@ export async function up(knex: Knex): Promise<void> {
     .schema
     .createTable(ETablesNames.produto, table =>{
       table.bigIncrements('id').primary().index();
-      table.string('nome',150).index().notNullable();
+      table.string('nome',150).checkLength('<=',150).index().notNullable();
       table.double('preco',4).index().notNullable();
       table.double('estoque',6).index().notNullable();
     }).then(()=>{
