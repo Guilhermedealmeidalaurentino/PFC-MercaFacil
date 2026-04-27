@@ -6,15 +6,15 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "dev": "ts-node-dev ./src/index.ts",
-    "postinstall": "tsc",
-    "production": "node ./build/index.js",
-    "test": "jest",
-    "knex:migrate": "knex --knexfile ./src/server/database/knex/Environment.ts migrate:latest",
-    "knex:rollback": "knex --knexfile ./src/server/database/knex/Environment.ts migrate:rollback",
-    "knex:rollback-all": "knex --knexfile ./src/server/database/knex/Environment.ts migrate:rollback --all",
-    "knex:seed": "knex --knexfile ./src/server/database/knex/Environment.ts seed:run"
-  },
+  "dev": "ts-node-dev ./src/index.ts",
+  "postinstall": "tsc",
+  "production": "node ./build/index.js",
+  "test": "jest",
+  "knex:migrate": "ts-node node_modules/knex/bin/cli.js --knexfile ./src/server/database/knex/Environment.ts migrate:latest",
+  "knex:rollback": "ts-node node_modules/knex/bin/cli.js --knexfile ./src/server/database/knex/Environment.ts migrate:rollback",
+  "knex:rollback-all": "ts-node node_modules/knex/bin/cli.js --knexfile ./src/server/database/knex/Environment.ts migrate:rollback --all",
+  "knex:seed": "ts-node node_modules/knex/bin/cli.js --knexfile ./src/server/database/knex/Environment.ts seed:run"
+},
   "dependencies": {
     "@types/jest": "^30.0.0",
     "bcryptjs": "^3.0.3",
@@ -42,6 +42,7 @@
     "globals": "^17.4.0",
     "sqlite3": "^6.0.1",
     "supertest": "^7.2.2",
+    "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.57.2"

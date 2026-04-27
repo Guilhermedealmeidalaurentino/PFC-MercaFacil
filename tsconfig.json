@@ -1,6 +1,5 @@
 {
-  // Visit https://aka.ms/tsconfig to read more about this file
-   "compilerOptions": {
+  "compilerOptions": {
     "target": "ES6",
     "module": "commonjs",
     "strict": true,
@@ -9,12 +8,15 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "./build",
     "rootDir": "./src"
-
-  },"include": ["src/**/*"],
+  },
+  "ts-node": {
+    "transpileOnly": true  // ← ignora erros de tipo, só transpila — mais rápido e evita falsos bloqueios
+  },
+  "include": ["src/**/*"],
   "exclude": [
     "./jest.config.ts",
     "./node_modules",
     "./tests",
-    "./build",
+    "./build"
   ]
 }

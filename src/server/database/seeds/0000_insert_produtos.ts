@@ -2,8 +2,8 @@ import knex, { Knex } from "knex";
 import { ETablesNames } from "../ETablesNames";
 
 export const seed = async (knex: Knex) =>{
-  const [{count}] = await knex(ETablesNames.produto).count<[{count: number}]>('* as count');
-  if(!Number.isInteger(count) ||  Number(count)>0) return;
+  const [{ count }] = await knex(ETablesNames.produto).count<[{ count: string }]>('* as count');
+if (Number(count) > 0) return;
 
   const produtoToInsert = produtosDeMercado;
   await knex(ETablesNames.produto).insert(produtoToInsert);
