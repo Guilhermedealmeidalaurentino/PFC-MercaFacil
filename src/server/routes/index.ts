@@ -1,17 +1,17 @@
 import { Router } from "express";
-import {StatusCodes} from 'http-status-codes';
 import { ProdutosController, AuthController } from "../controllers";
+import { ensureAuthenticated } from "../shared/middleware";
 const router = Router();
 
 router.get('/', (_, res) => {
   return res.send('Olá dev!');
 });
-router.get('/produtos', ProdutosController.getAllValidation, ProdutosController.getAll);
-router.post('/produtos',  ProdutosController.createValidation, ProdutosController.create);
-router.get('/produtos/:id', ProdutosController.getByIdValidation, ProdutosController.getById);
-router.put('/produtos/:id', ProdutosController.updateByIdValidation, ProdutosController.updateById);
-router.delete('/produtos/:id', ProdutosController.deleteByIdValidation, ProdutosController.deleteById);
+router.get('/produtos',ensureAuthenticated, ProdutosController.getAllValidation, ProdutosController.getAll);
+router.post('/produtos',ensureAuthenticated,  ProdutosController.createValidation, ProdutosController.create);
+router.get('/produtos/:id',ensureAuthenticated, ProdutosController.getByIdValidation, ProdutosController.getById);
+router.put('/produtos/:id',ensureAuthenticated, ProdutosController.updateByIdValidation, ProdutosController.updateById);
+router.delete('/produtos/:id',ensureAuthenticated, ProdutosController.deleteByIdValidation, ProdutosController.deleteById);
 
-router.post('/login',AuthController.loginValidation, AuthController.login);
-router.post('/usuarios',AuthController.createValidation, AuthController.create);
+router.post('/entrar', AuthController.signInValidation, AuthController.signIn);
+router.post('/cadastrar', AuthController.signUpValidation, AuthController.signUp);
 export {router};

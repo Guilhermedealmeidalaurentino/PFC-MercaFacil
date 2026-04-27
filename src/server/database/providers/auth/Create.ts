@@ -1,23 +1,24 @@
-import { Knex } from "../../knex";
-import { ETablesNames } from "../../ETablesNames";
-import { IUsuario } from "../../models";
+import { PasswordCrypto } from '../../../shared/services';
+import { ETablesNames } from '../../ETablesNames';
+import { IUsuario } from '../../models';
+import { Knex } from '../../knex';
 
-export const create = async (
-  usuario: Omit<IUsuario, 'id'>
-): Promise<number | Error> => {
 
+export const create = async (usuario: Omit<IUsuario, 'id'>): Promise<number | Error> => {
   try {
+    const hashedPassword = await PasswordCrypto.hashPassword(usuario.senha);
 
-    const result = await Knex(ETablesNames.usuario)
-      .insert({
-        email: usuario.email,
-        senha: usuario.senha
-      });
+    const [result] = await Knex(ETablesNames.usuario).insert({ ...usuario, senha: hashedPassword }).returning('id');
 
-    return result[0];
+    if (typeof result === 'object') {
+      return result.id;
+    } else if (typeof result === 'number') {
+      return result;
+    }
 
+    return new Error('Erro ao cadastrar o registro');
   } catch (error) {
     console.log(error);
-    return new Error('Erro ao cadastrar usuário');
+    return new Error('Erro ao cadastrar o registro');
   }
 };

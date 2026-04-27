@@ -10,11 +10,49 @@ import { ProdutosProvider } from '../../database/providers/produtos';
 interface IBodyProps extends Omit<IProduto, 'id'> { }
 
 export const createValidation = validation((getSchema) => ({
-  body: getSchema<IBodyProps>(yup.object().shape({
-    nome: yup.string().required().min(3).max(150),
-    preco: yup.number().required().min(3),
-    estoque: yup.number().required().min(3),
-  })),
+  body: getSchema<IBodyProps>(
+    yup.object().shape({
+      nome: yup
+        .string()
+        .required()
+        .min(3)
+        .max(150),
+
+      descricao: yup
+        .string()
+        .required()
+        .min(5)
+        .max(500),
+
+      categoria: yup
+        .string()
+        .required()
+        .min(3)
+        .max(100),
+
+      marca: yup
+        .string()
+        .required()
+        .min(2)
+        .max(100),
+
+      preco: yup
+        .number()
+        .required()
+        .moreThan(0),
+
+      estoque: yup
+        .number()
+        .required()
+        .integer()
+        .min(0),
+
+      ativo: yup
+        .boolean()
+        .optional()
+        .default(true),
+    })
+  ),
 }));
 
 export const create = async (req: Request<{}, {}, IProduto>, res: Response) => {

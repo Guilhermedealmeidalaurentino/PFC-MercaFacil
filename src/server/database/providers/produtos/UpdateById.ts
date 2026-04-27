@@ -3,10 +3,10 @@ import { IProduto } from '../../models';
 import { Knex } from '../../knex';
 
 
-export const updateById = async (id: number, cidade: Omit<IProduto, 'id'>): Promise<void | Error> => {
+export const updateById = async (id: number, produto: Omit<IProduto, 'id'>): Promise<void | Error> => {
   try {
     const result = await Knex(ETablesNames.produto)
-      .update(cidade)
+      .update(produto)
       .where('id', '=', id);
 
     if (result > 0) return;

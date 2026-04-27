@@ -1,40 +1,52 @@
-import { Request, Response } from "express";
-import * as yup from "yup";
-import { validation } from "../../shared/middleware";
-import { StatusCodes } from "http-status-codes";
-import { AuthProvider } from "../../database/providers/auth";
+import { Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
+import * as yup from 'yup';
+import { AuthProvider } from '../../database/providers/auth';
+import { validation } from '../../shared/middleware';
+import { IUsuario } from '../../database/models';
+import { PasswordCrypto , JWTService} from '../../shared/services';
 
-interface IBodyProps {
-  email: string;
-  senha: string;
-}
 
-export const loginValidation = validation((getSchema) => ({
-  body: getSchema<IBodyProps>(
-    yup.object().shape({
-      email: yup.string().email().required(),
-      senha: yup.string().required().min(3)
-    })
-  ),
+interface IBodyProps extends Omit<IUsuario, 'id' | 'nome'> { }
+
+export const signInValidation = validation((getSchema) => ({
+  body: getSchema<IBodyProps>(yup.object().shape({
+    senha: yup.string().required().min(6),
+    email: yup.string().required().email().min(5),
+  })),
 }));
 
-export const login = async (
-  req: Request<{}, {}, IBodyProps>,
-  res: Response
-) => {
+export const signIn = async (req: Request<{}, {}, IBodyProps>, res: Response) => {
+  const { email, senha } = req.body;
 
-  const result = await AuthProvider.login(
-    req.body.email,
-    req.body.senha
-  );
 
-  if (result instanceof Error) {
+   const usuario = await AuthProvider.getByEmail(email);
+    if (usuario instanceof Error) {
     return res.status(StatusCodes.UNAUTHORIZED).json({
       errors: {
-        default: result.message
+        default: 'Email ou senha são inválidos'
       }
     });
   }
 
-  return res.status(StatusCodes.OK).json(result);
+const passwordMatch = await PasswordCrypto.verifyPassword(senha,usuario.senha);
+  if (!passwordMatch) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({
+      errors: {
+        default: 'Email ou senha são inválidos'
+      }
+    });
+  } else {
+
+    const accessToken = JWTService.sign({ uid: usuario.id });
+    if (accessToken === 'JWT_SECRET_NOT_FOUND') {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        errors: {
+          default: 'Erro ao gerar o token de acesso'
+        }
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({ accessToken });
+  }
 };

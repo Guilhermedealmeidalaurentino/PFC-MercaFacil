@@ -5,6 +5,7 @@ import { ETablesNames } from "../ETablesNames";
 export async function up(knex: any) {
   return knex.schema.createTable('usuario', (table: any) => {
     table.increments('id').primary();
+    table.string('nome').notNullable();
     table.string('email').notNullable().unique();
     table.string('senha').notNullable();
     }).then(()=>{

@@ -1,25 +1,25 @@
-import { Request, Response } from "express";
-import * as yup from "yup";
-import { validation } from "../../shared/middleware";
-import { StatusCodes } from "http-status-codes";
-import { AuthProvider } from "../../database/providers/auth";
+import { Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
+import * as yup from 'yup';
 
-interface IBodyProps {
-  email: string;
-  senha: string;
-}
+import { AuthProvider } from '../../database/providers/auth';
+import { validation } from '../../shared/middleware';
+import { IUsuario } from '../../database/models';
 
-export const createValidation = validation((getSchema) => ({
-  body: getSchema<IBodyProps>(
-    yup.object().shape({
-      email: yup.string().email().required(),
-      senha: yup.string().required().min(3)
-    })
-  ),
+
+interface IBodyProps extends Omit<IUsuario, 'id'> { }
+
+export const signUpValidation = validation((getSchema) => ({
+  body: getSchema<IBodyProps>(yup.object().shape({
+    nome: yup.string().required().min(3),
+    senha: yup.string().required().min(6),
+    email: yup.string().required().email().min(5),
+  })),
 }));
 
-export const create = async (req: Request<{}, {}, IBodyProps>,res: Response) => {
+export const signUp = async (req: Request<{}, {}, IBodyProps>, res: Response) => {
   const result = await AuthProvider.create(req.body);
+
   if (result instanceof Error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       errors: {

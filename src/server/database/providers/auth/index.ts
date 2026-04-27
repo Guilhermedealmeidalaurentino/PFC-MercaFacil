@@ -1,4 +1,4 @@
-import * as login from './Login'
+import * as login from './GetByEmail'
 import * as create from './Create'
 export const AuthProvider = {
   ...login,

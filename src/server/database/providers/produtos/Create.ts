@@ -1,16 +1,20 @@
-import { IProduto } from '../../models';
-import { Knex } from '../../knex';
-import { ETablesNames } from '../../ETablesNames';
+import knex from "knex";
+import { ETablesNames } from "../../ETablesNames";
+import { IProduto } from "../../models";
 
-
-export const create = async (produto: Omit<IProduto, 'id'>): Promise<number | Error> => {
+export const create = async (
+  produto: Omit<IProduto, 'id'>
+): Promise<number | Error> => {
   try {
-    const [result] = await Knex(ETablesNames.produto).insert(produto).returning('id');
+    const result = await knex(ETablesNames.produto)
+      .insert(produto)
+      .returning('id');
 
-    if (typeof result === 'object') {
-      return result.id;
-    } else if (typeof result === 'number') {
-      return result;
+    if (Array.isArray(result) && typeof result[0] === 'object') {
+      return result[0].id;
+    }
+    if (Array.isArray(result) && typeof result[0] === 'number') {
+      return result[0];
     }
 
     return new Error('Erro ao cadastrar o registro');
