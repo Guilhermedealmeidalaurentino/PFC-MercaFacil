@@ -29,4 +29,9 @@ router.get('/produtos/:id', ensureAuthenticated, ProdutosController.getByIdValid
 router.put('/produtos/:id', ensureAuthenticated, ProdutosController.updateByIdValidation, ProdutosController.updateById);
 router.delete('/produtos/:id', ensureAuthenticated, ProdutosController.deleteByIdValidation, ProdutosController.deleteById);
 
+// Perfil do usuário autenticado
+router.patch('/usuarios/perfil', ensureAuthenticated, UsuariosController.updateProfileValidation, UsuariosController.updateProfile);
+router.patch('/usuarios/senha', ensureAuthenticated, UsuariosController.resetPasswordValidation, UsuariosController.resetPassword);
+router.get('/usuarios/perfil', ensureAuthenticated, UsuariosController.getById);
+
 export { router };

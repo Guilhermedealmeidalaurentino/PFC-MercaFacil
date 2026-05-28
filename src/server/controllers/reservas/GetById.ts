@@ -30,7 +30,7 @@ export const getReservaById = async (
   // Para MERCADO, precisamos do mercado_id real, não o usuario_id
   let user_id = req.userId;
   if (req.userRole === 'MERCADO') {
-    const mercado = await MercadosProvider.getById(req.userId);
+    const mercado = await MercadosProvider.getByUsuarioId(req.userId);
     if (mercado instanceof Error) {
       return res.status(StatusCodes.NOT_FOUND).json({
         errors: { default: 'Mercado não encontrado' },
@@ -38,7 +38,6 @@ export const getReservaById = async (
     }
     user_id = mercado.id;
   }
-
   const result = await ReservasProvider.getById(
     req.params.id,
     user_id,

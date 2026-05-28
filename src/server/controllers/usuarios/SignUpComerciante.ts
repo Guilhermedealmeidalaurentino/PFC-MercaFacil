@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import * as yup from 'yup';
 import { validation } from '../../shared/middleware';
-import { CNPJValidation, PasswordCrypto, ViaCEPService } from '../../shared/services';
+import { CNPJValidation, CPFValidation, EmailDomainValidation, PasswordCrypto, ViaCEPService } from '../../shared/services';
 import { Knex } from '../../database/knex';
 import { ETablesNames } from '../../database/ETablesNames';
 
@@ -10,6 +10,7 @@ interface IBodyProps {
   nome: string;
   email: string;
   senha: string;
+  cpf: string;
   telefone?: string;
   cnpj: string;
   cep: string;
@@ -54,8 +55,25 @@ export const signUpComercianteValidation = validation(
     body: getSchema<IBodyProps>(
       yup.object().shape({
         nome: yup.string().required().min(3),
-        email: yup.string().required().email().min(5),
+        email: yup
+          .string()
+          .required()
+          .email()
+          .min(5)
+          .test(
+            'dominio-valido',
+            'Use um e-mail de um provedor conhecido (gmail, hotmail, outlook...)',
+            (value) => EmailDomainValidation(value ?? '')
+          ),
         senha: yup.string().required().min(6),
+        cpf: yup
+          .string()
+          .required()
+          .test(
+            'cpf-valido',
+            'CPF inválido',
+            (value) => CPFValidation(value ?? '')
+          ),
         telefone: yup.string().optional(),
         cnpj: yup
           .string()
@@ -84,11 +102,12 @@ export const signUpComercianteValidation = validation(
     ),
   })
 );
+
 export const signUpComerciante = async (
   req: Request<{}, {}, IBodyProps>,
   res: Response
 ) => {
-  const { nome, email, senha, telefone, cnpj, cep, nome_mercado } = req.body;
+  const { nome, email, senha, cpf, telefone, cnpj, cep, nome_mercado } = req.body;
 
   const dadosCep = await ViaCEPService.buscarCep(cep);
   if (dadosCep instanceof Error) {
@@ -96,9 +115,9 @@ export const signUpComerciante = async (
       errors: { default: dadosCep.message },
     });
   }
+
   try {
     const { usuario_id, mercado_id } = await Knex.transaction(async (trx) => {
-
       const usuarioExistente = await trx(ETablesNames.usuario)
         .where('email', email)
         .first();
@@ -108,8 +127,17 @@ export const signUpComerciante = async (
       }
 
       const hashedPassword = await PasswordCrypto.hashPassword(senha);
+
       const [usuario] = await trx(ETablesNames.usuario)
-        .insert({ nome, email, senha: hashedPassword, telefone, role: 'MERCADO', ativo: true })
+        .insert({
+          nome,
+          email,
+          senha: hashedPassword,
+          cpf: cpf.replace(/\D/g, ''),
+          telefone,
+          role: 'MERCADO',
+          ativo: true,
+        })
         .returning('id');
 
       const [mercado] = await trx(ETablesNames.mercado)
@@ -126,18 +154,16 @@ export const signUpComerciante = async (
         })
         .returning('id');
 
-      // Insere produtos base vinculados ao mercado
       const produtos = produtosBase.map(produto => ({
         ...produto,
         mercado_id: mercado.id,
       }));
 
-      console.log('# Inserindo produtos:', produtos.length, 'mercado_id:', mercado.id);
       await trx(ETablesNames.produto).insert(produtos);
-      console.log('# Produtos inseridos!');
 
       return { usuario_id: usuario.id, mercado_id: mercado.id };
     });
+
     return res.status(StatusCodes.CREATED).json({ usuario_id, mercado_id });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Erro ao cadastrar comerciante';

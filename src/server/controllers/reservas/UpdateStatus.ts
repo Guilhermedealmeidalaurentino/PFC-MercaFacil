@@ -46,7 +46,7 @@ export const updateStatus = async (
     });
   }
 
-  const mercado = await MercadosProvider.getById(req.userId);
+  const mercado = await MercadosProvider.getByUsuarioId(req.userId);
   if (mercado instanceof Error) {
     return res.status(StatusCodes.NOT_FOUND).json({
       errors: { default: 'Mercado não encontrado' },
