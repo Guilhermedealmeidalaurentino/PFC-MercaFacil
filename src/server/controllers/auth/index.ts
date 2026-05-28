@@ -1,7 +1,8 @@
 import * as login from './Login';
-import * as create from './Create';
+import * as getMe from './GetMe';
 
 export const AuthController = {
   ...login,
-  ...create
+  ...getMe
+
 };

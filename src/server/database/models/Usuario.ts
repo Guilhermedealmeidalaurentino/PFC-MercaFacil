@@ -3,4 +3,7 @@ export interface IUsuario {
   nome: string;
   email: string;
   senha: string;
+  telefone?: string;
+  role: 'ADMIN' | 'CLIENTE' | 'MERCADO';
+  ativo: boolean;
 }

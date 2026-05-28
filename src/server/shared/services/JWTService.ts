@@ -3,6 +3,11 @@ import * as jwt from 'jsonwebtoken';
 
 interface IJwtData {
   uid: number;
+
+  role:
+    | 'ADMIN'
+    | 'CLIENTE'
+    | 'MERCADO';
 }
 
 const sign = (data: IJwtData): string | 'JWT_SECRET_NOT_FOUND' => {

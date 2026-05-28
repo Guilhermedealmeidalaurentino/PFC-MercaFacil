@@ -1,4 +1,4 @@
-import knex from "knex";
+import { Knex } from "../../knex"; 
 import { ETablesNames } from "../../ETablesNames";
 import { IProduto } from "../../models";
 
@@ -6,15 +6,16 @@ export const create = async (
   produto: Omit<IProduto, 'id'>
 ): Promise<number | Error> => {
   try {
-    const result = await knex(ETablesNames.produto)
+    const [result] = await Knex(ETablesNames.produto)
       .insert(produto)
       .returning('id');
 
-    if (Array.isArray(result) && typeof result[0] === 'object') {
-      return result[0].id;
+    if (typeof result === 'object' && result.id !== undefined) {
+      return result.id;
     }
-    if (Array.isArray(result) && typeof result[0] === 'number') {
-      return result[0];
+
+    if (typeof result === 'number') {
+      return result;
     }
 
     return new Error('Erro ao cadastrar o registro');

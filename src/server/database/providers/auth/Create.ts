@@ -3,22 +3,58 @@ import { ETablesNames } from '../../ETablesNames';
 import { IUsuario } from '../../models';
 import { Knex } from '../../knex';
 
-
-export const create = async (usuario: Omit<IUsuario, 'id'>): Promise<number | Error> => {
+export const create = async (
+  usuario: Omit<IUsuario, 'id'>
+): Promise<number | Error> => {
   try {
-    const hashedPassword = await PasswordCrypto.hashPassword(usuario.senha);
 
-    const [result] = await Knex(ETablesNames.usuario).insert({ ...usuario, senha: hashedPassword }).returning('id');
+    const usuarioExistente = await Knex(
+      ETablesNames.usuario
+    )
+      .where('email', usuario.email)
+      .first();
+
+    if (usuarioExistente) {
+      return new Error(
+        'Email já cadastrado'
+      );
+    }
+
+    const hashedPassword =
+      await PasswordCrypto.hashPassword(
+        usuario.senha
+      );
+
+    const [result] = await Knex(
+      ETablesNames.usuario
+    )
+      .insert({
+        nome: usuario.nome,
+        email: usuario.email,
+        senha: hashedPassword,
+        telefone: usuario.telefone,
+        role: usuario.role,
+      })
+      .returning('id');
 
     if (typeof result === 'object') {
       return result.id;
-    } else if (typeof result === 'number') {
+    }
+
+    if (typeof result === 'number') {
       return result;
     }
 
-    return new Error('Erro ao cadastrar o registro');
+    return new Error(
+      'Erro ao cadastrar usuário'
+    );
+
   } catch (error) {
+
     console.log(error);
-    return new Error('Erro ao cadastrar o registro');
+
+    return new Error(
+      'Erro ao cadastrar usuário'
+    );
   }
 };

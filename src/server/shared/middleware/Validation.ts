@@ -2,10 +2,9 @@ import { RequestHandler } from 'express';
 import { AnyObject, Maybe, ObjectSchema, ValidationError } from 'yup';
 import { StatusCodes } from 'http-status-codes';
 
-
 type TProperty = 'body' | 'header' | 'params' | 'query';
 
-type TGetSchema = <T extends Maybe<AnyObject>>(schema: ObjectSchema<T>) => ObjectSchema<T>
+type TGetSchema = <T extends Maybe<AnyObject>>(schema: ObjectSchema<T>) => ObjectSchema<T>;
 
 type TAllSchemas = Record<TProperty, ObjectSchema<any>>;
 
@@ -16,25 +15,27 @@ type TValidation = (getAllSchemas: TGetAllSchemas) => RequestHandler;
 export const validation: TValidation = (getAllSchemas) => async (req, res, next) => {
   const schemas = getAllSchemas((schema) => schema);
 
-
   const errorsResult: Record<string, Record<string, string>> = {};
 
-  Object.entries(schemas).forEach(([key, schema]) => {
+  for (const [key, schema] of Object.entries(schemas)) {
     try {
-      schema.validateSync(req[key as TProperty], { abortEarly: false });
+      await schema.validate(req[key as TProperty], { abortEarly: false });
     } catch (err) {
       const yupError = err as ValidationError;
       const errors: Record<string, string> = {};
 
-      yupError.inner.forEach(error => {
-        if (error.path === undefined) return;
-        errors[error.path] = error.message;
-      });
+      if (yupError.inner && yupError.inner.length > 0) {
+        yupError.inner.forEach(error => {
+          if (error.path === undefined) return;
+          errors[error.path] = error.message;
+        });
+      } else {
+        errors[yupError.path ?? 'default'] = yupError.message;
+      }
 
       errorsResult[key] = errors;
     }
-  });
-
+  }
 
   if (Object.entries(errorsResult).length === 0) {
     return next();

@@ -7,10 +7,11 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "./build",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "typeRoots": ["./node_modules/@types", "./src/@types"]
   },
   "ts-node": {
-    "transpileOnly": true  // ← ignora erros de tipo, só transpila — mais rápido e evita falsos bloqueios
+    "files": true 
   },
   "include": ["src/**/*"],
   "exclude": [
