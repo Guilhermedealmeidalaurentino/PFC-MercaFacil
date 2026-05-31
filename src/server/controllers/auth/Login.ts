@@ -114,9 +114,7 @@ export const signIn = async (
 
   if (usuario.role === 'MERCADO') {
 
-    const mercadoResult =
-      await MercadosProvider.getById(usuario.id);
-
+    const mercadoResult = await MercadosProvider.getByUsuarioId(usuario.id);
     if (!(mercadoResult instanceof Error)) {
       mercado = mercadoResult;
     }

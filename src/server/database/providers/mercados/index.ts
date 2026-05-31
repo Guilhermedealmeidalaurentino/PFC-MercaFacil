@@ -4,6 +4,7 @@ import * as getById from './GetById';
 import * as getByUsuarioId from './GetByUsuarioId';
 import * as create from './Create';
 import * as getAll from './GetAll';
+import * as getAllAdmin from './GetAllAdmin';
 
 export const MercadosProvider = {
   ...deleteById,
@@ -12,4 +13,5 @@ export const MercadosProvider = {
   ...getByUsuarioId,
   ...create,
   ...getAll,
+  ...getAllAdmin,
 };

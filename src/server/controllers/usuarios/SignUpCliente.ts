@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import * as yup from 'yup';
 import { AuthProvider } from '../../database/providers/auth';
+import { LogsProvider } from '../../database/providers/logs';
 import { validation } from '../../shared/middleware';
 import { EmailDomainValidation, CPFValidation } from '../../shared/services';
 
@@ -57,6 +58,13 @@ export const signUpCliente = async (
       errors: { default: result.message },
     });
   }
+
+  await LogsProvider.registrar(
+  result,
+  `[CLIENTE] se cadastrou na plataforma`,
+  req.body.nome,
+  req.body.email,
+);
 
   return res.status(StatusCodes.CREATED).json({ id: result });
 };

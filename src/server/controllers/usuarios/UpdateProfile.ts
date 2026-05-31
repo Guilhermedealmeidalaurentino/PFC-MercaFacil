@@ -6,7 +6,6 @@ import { UsuariosProvider } from '../../database/providers/usuarios';
 
 interface IBodyProps {
   nome?: string;
-  email?: string;
   telefone?: string;
 }
 export const updateProfileValidation =
@@ -17,15 +16,18 @@ export const updateProfileValidation =
         nome: yup
           .string()
           .optional(),
-
-        email: yup
-          .string()
-          .email()
-          .optional(),
-
         telefone: yup
           .string()
-          .optional(),
+          .optional()
+          .test(
+            'telefone-valido',
+            'Telefone inválido — informe um número com DDD (10 ou 11 dígitos)',
+            (value) => {
+              if (!value) return true;
+              const limpo = value.replace(/\D/g, '');
+              return limpo.length === 10 || limpo.length === 11;
+            }
+          ),
       })
     ),
   }));
@@ -37,9 +39,9 @@ export const updateProfile = async (
   const usuarioId = req.userId;
   const result =
     await UsuariosProvider.updateProfile(
-        usuarioId,
-        req.body
-      );
+      usuarioId,
+      req.body
+    );
   if (result instanceof Error) {
 
     return res.status(

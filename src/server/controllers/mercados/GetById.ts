@@ -1,22 +1,38 @@
-import { Knex } from '../../database/knex';
-import { ETablesNames } from '../../database/ETablesNames';
-import { IMercado } from '../../database/models';
+import { Request, Response } from 'express';
+import { StatusCodes } from 'http-status-codes';
+import { MercadosProvider } from '../../database/providers/mercados';
+import * as yup from 'yup';
+
+interface IParamProps {
+  id?: string;
+}
+
+const getByIdValidation = yup.object().shape({
+  id: yup.number().integer().required().moreThan(0),
+});
 
 export const getById = async (
-  id: number
-): Promise<IMercado | Error> => {
-  try {
-    const result = await Knex(ETablesNames.mercado)
-      .where('id', '=', id)
-      .first();
+  req: Request<IParamProps>,
+  res: Response
+) => {
+  const body = await getByIdValidation.validate(
+    { id: req.params.id },
+    { abortEarly: false }
+  ).catch((err) => err);
 
-    if (!result) {
-      return new Error('Mercado não encontrado');
-    }
-
-    return result;
-  } catch (error) {
-    console.log(error);
-    return new Error('Erro ao buscar mercado');
+  if (body instanceof yup.ValidationError) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      errors: { default: body.message },
+    });
   }
+
+  const result = await MercadosProvider.getById(Number(req.params.id));
+
+  if (result instanceof Error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      errors: { default: result.message },
+    });
+  }
+
+  return res.status(StatusCodes.OK).json(result);
 };

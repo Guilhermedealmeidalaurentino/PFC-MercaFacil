@@ -1,3 +1,5 @@
+// src/server/controllers/usuarios/SignUpComerciante.ts
+
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import * as yup from 'yup';
@@ -5,6 +7,7 @@ import { validation } from '../../shared/middleware';
 import { CNPJValidation, CPFValidation, EmailDomainValidation, PasswordCrypto, ViaCEPService } from '../../shared/services';
 import { Knex } from '../../database/knex';
 import { ETablesNames } from '../../database/ETablesNames';
+import { LogsProvider } from '../../database/providers/logs';
 
 interface IBodyProps {
   nome: string;
@@ -163,6 +166,14 @@ export const signUpComerciante = async (
 
       return { usuario_id: usuario.id, mercado_id: mercado.id };
     });
+
+    await LogsProvider.registrar(
+      usuario_id,
+      `[MERCADO] se cadastrou na plataforma com o mercado "${nome_mercado}"`,
+      nome,
+      email,
+      nome_mercado,
+    );
 
     return res.status(StatusCodes.CREATED).json({ usuario_id, mercado_id });
   } catch (error) {

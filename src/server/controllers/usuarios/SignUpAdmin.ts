@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import * as yup from 'yup';
 import { AuthProvider } from '../../database/providers/auth';
+import { LogsProvider } from '../../database/providers/logs';
 import { validation } from '../../shared/middleware';
 
 interface IBodyProps {
@@ -43,6 +44,14 @@ export const signUpAdmin = async (
       errors: { default: result.message },
     });
   }
+
+  const adminAutor = await AuthProvider.getById(req.userId);
+  await LogsProvider.registrar(
+    req.userId,
+    `Criou um novo administrador chamado "${req.body.nome}" (${req.body.email})`,
+    adminAutor instanceof Error ? 'Administrador' : adminAutor.nome,
+    adminAutor instanceof Error ? '' : adminAutor.email,
+  );
 
   return res.status(StatusCodes.CREATED).json({ id: result });
 };

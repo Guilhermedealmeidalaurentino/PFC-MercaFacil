@@ -5,7 +5,9 @@ import { validation } from '../../shared/middleware';
 import { ReservasProvider } from '../../database/providers/reservas';
 import { MercadosProvider } from '../../database/providers/mercados';
 import { ProdutosProvider } from '../../database/providers/produtos';
+import { LogsProvider } from '../../database/providers/logs';
 import { ReservaCodeService } from '../../shared/services';
+import { AuthProvider } from '../../database/providers/auth';
 
 interface IProdutoReserva {
   produto_id: number;
@@ -14,7 +16,7 @@ interface IProdutoReserva {
 
 interface IBodyProps {
   mercado_id: number;
-  data_retirada: string; // ← cliente informa
+  data_retirada: string;
   produtos: IProdutoReserva[];
 }
 
@@ -54,7 +56,6 @@ export const createReserva = async (
     });
   }
 
-  // Valida a data escolhida pelo cliente
   const dataValidada = ReservaCodeService.validarDataRetirada(
     data_retirada,
     mercado.horario_abertura,
@@ -97,6 +98,14 @@ export const createReserva = async (
       errors: { default: result.message },
     });
   }
+
+  const cliente = await AuthProvider.getById(req.userId);
+  await LogsProvider.registrar(
+    req.userId,
+    `[RESERVA] Criou uma reserva (cód: ${codigo_retirada}) no mercado "${mercado.nome_mercado}" para ${new Date(dataValidada).toLocaleDateString('pt-BR')}`,
+    cliente instanceof Error ? '' : cliente.nome,
+    cliente instanceof Error ? '' : cliente.email,
+  );
 
   return res.status(StatusCodes.CREATED).json({
     reserva_id: result.reserva_id,

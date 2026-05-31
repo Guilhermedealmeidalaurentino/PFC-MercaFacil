@@ -2,7 +2,8 @@ import * as deleteById from './DeleteById';
 import * as updateProfile from './UpdateProfile';
 import * as getById from './GetById';
 import * as getAll from './GetAll';
-import * as resetPassword from './ResetPassword'
+import * as resetPassword from './ResetPassword';
+import * as getAllAdmin from './GetAllAdmin';
 
 export const UsuariosProvider = {
   ...deleteById,
@@ -10,4 +11,5 @@ export const UsuariosProvider = {
   ...getById,
   ...getAll,
   ...resetPassword,
+  ...getAllAdmin,
 };

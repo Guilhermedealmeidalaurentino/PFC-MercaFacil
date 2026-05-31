@@ -6,4 +6,5 @@ export interface IReserva {
   codigo_retirada?: string;
   data_reserva?: Date;
   data_retirada: Date;
+  motivo_cancelamento?: string;
 }

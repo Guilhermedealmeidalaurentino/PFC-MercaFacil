@@ -17,7 +17,7 @@ const DOMINIOS_VALIDOS = [
   'protonmail.com',
   'proton.me',
   'teste.com',
-  'admin.com',
+  'mercafacil.com',
 ];
 
 export const EmailDomainValidation = (email: string): boolean => {

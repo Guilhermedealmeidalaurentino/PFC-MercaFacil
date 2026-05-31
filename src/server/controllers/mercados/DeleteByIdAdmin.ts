@@ -1,8 +1,10 @@
+// src/server/controllers/mercados/DeleteByIdAdmin.ts
+
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import * as yup from 'yup';
 import { validation } from '../../shared/middleware';
-import { ReservasProvider } from '../../database/providers/reservas';
+import { MercadosProvider } from '../../database/providers/mercados';
 import { LogsProvider } from '../../database/providers/logs';
 import { AuthProvider } from '../../database/providers/auth';
 
@@ -10,7 +12,7 @@ interface IParamProps {
   id?: number;
 }
 
-export const cancelarReservaValidation = validation((getSchema) => ({
+export const deleteByIdAdminValidation = validation((getSchema) => ({
   params: getSchema<IParamProps>(
     yup.object().shape({
       id: yup.number().integer().required().moreThan(0),
@@ -18,13 +20,13 @@ export const cancelarReservaValidation = validation((getSchema) => ({
   ),
 }));
 
-export const cancelarReserva = async (
+export const deleteByIdAdmin = async (
   req: Request<IParamProps>,
   res: Response
 ) => {
-  if (req.userRole !== 'CLIENTE') {
+  if (req.userRole !== 'ADMIN') {
     return res.status(StatusCodes.FORBIDDEN).json({
-      errors: { default: 'Apenas clientes podem cancelar reservas' },
+      errors: { default: 'Acesso negado' },
     });
   }
 
@@ -34,23 +36,26 @@ export const cancelarReserva = async (
     });
   }
 
-  const result = await ReservasProvider.cancelarByCliente(
-    req.params.id,
-    req.userId
-  );
+  const mercado = await MercadosProvider.getById(Number(req.params.id));
+  if (mercado instanceof Error) {
+    return res.status(StatusCodes.NOT_FOUND).json({
+      errors: { default: 'Mercado não encontrado' },
+    });
+  }
 
+  const result = await MercadosProvider.deleteById(Number(req.params.id));
   if (result instanceof Error) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       errors: { default: result.message },
     });
   }
 
-  const cliente = await AuthProvider.getById(req.userId);
+  const adminAutor = await AuthProvider.getById(req.userId);
   await LogsProvider.registrar(
     req.userId,
-    `[RESERVA] Cancelou a reserva #${req.params.id}`,
-    cliente instanceof Error ? '' : cliente.nome,
-    cliente instanceof Error ? '' : cliente.email,
+    `... mensagem existente ...`,
+    adminAutor instanceof Error ? 'Administrador' : adminAutor.nome,
+    adminAutor instanceof Error ? '' : adminAutor.email,
   );
 
   return res.status(StatusCodes.NO_CONTENT).send();

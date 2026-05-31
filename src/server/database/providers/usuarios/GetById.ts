@@ -16,6 +16,7 @@ export const getById = async (
         'id',
         'nome',
         'email',
+        'cpf',
         'telefone',
         'role',
         'ativo',

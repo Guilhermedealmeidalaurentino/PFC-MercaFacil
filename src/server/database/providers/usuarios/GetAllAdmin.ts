@@ -2,23 +2,14 @@ import { Knex } from '../../knex';
 import { ETablesNames } from '../../ETablesNames';
 import { IUsuario } from '../../models';
 
-export const getAll = async (
+export const getAllAdmin = async (
   page = 1,
   limit = 10,
   filter = ''
 ): Promise<Omit<IUsuario, 'senha'>[] | Error> => {
   try {
-    const result = await Knex(
-      ETablesNames.usuario
-    )
-      .select([
-        'id',
-        'nome',
-        'email',
-        'telefone',
-        'role',
-        'ativo',
-      ])
+    const result = await Knex(ETablesNames.usuario)
+      .select(['id', 'nome', 'email', 'telefone', 'cpf', 'role', 'ativo'])
       .where((builder) => {
         if (filter) {
           builder
@@ -26,19 +17,13 @@ export const getAll = async (
             .orWhere('email', 'like', `%${filter}%`);
         }
       })
-      .where('ativo', true)
+      // ← sem filtro de ativo
       .offset((page - 1) * limit)
       .limit(limit)
       .orderBy('id', 'desc');
-      
     return result;
-    
   } catch (error) {
-    
     console.log(error);
-    return new Error(
-      'Erro ao listar usuários'
-    );
+    return new Error('Erro ao listar usuários');
   }
-  
 };

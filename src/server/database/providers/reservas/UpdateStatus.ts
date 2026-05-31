@@ -5,7 +5,8 @@ import { IReserva } from '../../models';
 export const updateStatus = async (
   reserva_id: number,
   mercado_id: number,
-  status: IReserva['status']
+  status: IReserva['status'],
+  motivo_cancelamento?: string,
 ): Promise<void | Error> => {
   try {
     const reserva = await Knex(ETablesNames.reserva)
@@ -18,10 +19,10 @@ export const updateStatus = async (
     }
 
     const fluxoValido: Record<IReserva['status'], IReserva['status'][]> = {
-      PENDENTE: ['CONFIRMADA', 'CANCELADA'],
-      CONFIRMADA: ['RETIRADA', 'CANCELADA'],
-      RETIRADA: [],
-      CANCELADA: [],
+      PENDENTE:   ['CONFIRMADA', 'CANCELADA'],
+      CONFIRMADA: ['RETIRADA',   'CANCELADA'],
+      RETIRADA:   [],
+      CANCELADA:  [],
     };
 
     const statusAtual = reserva.status as IReserva['status'];
@@ -41,11 +42,23 @@ export const updateStatus = async (
           .where('id', item.produto_id)
           .increment('estoque', item.quantidade);
       }
-    }
 
+      if (motivo_cancelamento) {
+        await Knex(ETablesNames.report_nao_retirada).insert({
+          reserva_id,
+          mercado_id,
+          cliente_id: reserva.cliente_id,
+          motivo: motivo_cancelamento,
+          visualizado: false,
+        });
+      }
+    }
     await Knex(ETablesNames.reserva)
       .where('id', reserva_id)
-      .update({ status });
+      .update({
+        status,
+        ...(motivo_cancelamento ? { motivo_cancelamento } : {}),
+      });
 
   } catch (error) {
     console.log(error);

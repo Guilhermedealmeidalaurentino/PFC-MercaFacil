@@ -9,43 +9,40 @@ export const ReservaCodeService = {
   },
 
   validarDataRetirada: (
-    dataEscolhida: string,
-    horario_abertura: string,
-    horario_fechamento: string
-  ): Date | Error => {
-    const data = new Date(dataEscolhida);
-    const agora = new Date();
+  dataEscolhida: string, // agora vem "2026-05-29T14:30:00"
+  horario_abertura: string,
+  horario_fechamento: string,
+): Date | Error => {
+  const data = new Date(dataEscolhida);
+  const agora = new Date();
 
-    if (isNaN(data.getTime())) {
-      return new Error('Data inválida');
-    }
+  if (isNaN(data.getTime())) {
+    return new Error('Data inválida');
+  }
 
-    // Mínimo: agora + 2h
-    const minimaRetirada = new Date(agora.getTime() + 2 * 60 * 60 * 1000);
-    if (data < minimaRetirada) {
-      return new Error('A data de retirada deve ser no mínimo 2 horas a partir de agora');
-    }
+  const minimaRetirada = new Date(agora.getTime() + 2 * 60 * 60 * 1000);
+  if (data < minimaRetirada) {
+    return new Error('A data de retirada deve ser no mínimo 2 horas a partir de agora');
+  }
 
-    // Máximo: agora + 3 dias
-    const maximaRetirada = new Date(agora.getTime() + 3 * 24 * 60 * 60 * 1000);
-    if (data > maximaRetirada) {
-      return new Error('A data de retirada deve ser no máximo 3 dias a partir de hoje');
-    }
+  const maximaRetirada = new Date(agora.getTime() + 3 * 24 * 60 * 60 * 1000);
+  if (data > maximaRetirada) {
+    return new Error('A data de retirada deve ser no máximo 3 dias a partir de hoje');
+  }
 
-    // Verifica horário comercial
-    const [aberturaH, aberturaM] = horario_abertura.split(':').map(Number);
-    const [fechamentoH, fechamentoM] = horario_fechamento.split(':').map(Number);
+  // Usar getHours/getMinutes (horário local) em vez de UTC
+  const horaData = data.getHours() * 60 + data.getMinutes();
+  const [abH, abM] = horario_abertura.split(':').map(Number);
+  const [feH, feM] = horario_fechamento.split(':').map(Number);
+  const abertura = abH * 60 + abM;
+  const fechamento = feH * 60 + feM;
 
-    const abertura = new Date(data);
-    abertura.setHours(aberturaH, aberturaM, 0, 0);
+  if (horaData < abertura || horaData > fechamento) {
+    return new Error(
+      `A retirada deve ser entre ${horario_abertura} e ${horario_fechamento}`
+    );
+  }
 
-    const fechamento = new Date(data);
-    fechamento.setHours(fechamentoH, fechamentoM, 0, 0);
-
-    if (data < abertura || data > fechamento) {
-      return new Error(`A retirada deve ser entre ${horario_abertura} e ${horario_fechamento}`);
-    }
-
-    return data;
-  },
+  return data;
+},
 };
