@@ -19,6 +19,8 @@ router.get('/reservas/:id', ensureAuthenticated, ReservasController.getReservaBy
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 router.post('/entrar', AuthController.signInValidation, AuthController.signIn);
 router.get('/me', ensureAuthenticated, AuthController.getMe);
+router.post('/auth/forgot-password', AuthController.forgotPasswordValidation, AuthController.forgotPassword);
+router.post('/auth/reset-password', AuthController.resetPasswordValidation, AuthController.resetPassword);
 
 // ─── Cadastro ─────────────────────────────────────────────────────────────────
 router.post('/cadastrar/cliente', UsuariosController.signUpClienteValidation, UsuariosController.signUpCliente);

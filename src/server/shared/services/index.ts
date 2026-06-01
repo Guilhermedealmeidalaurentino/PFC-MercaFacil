@@ -6,3 +6,4 @@ export * from './TranslationsYup';
 export * from './ReservaCodeService';
 export * from './EmailDomainValidation';
 export * from './CPFValidation';
+export * from './EmailService';
