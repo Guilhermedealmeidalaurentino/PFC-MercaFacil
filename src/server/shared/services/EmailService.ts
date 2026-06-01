@@ -1,15 +1,12 @@
 import nodemailer from 'nodemailer';
 
-console.log('SMTP_HOST:', process.env.SMTP_HOST);
-console.log('SMTP_PORT:', process.env.SMTP_PORT);
-console.log('SMTP_USER:', process.env.SMTP_USER);
-
 const createTransporter = async () => {
   if (process.env.NODE_ENV === 'production') {
     return nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT),
-      secure: true,
+      secure: false,
+      requireTLS: true,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
@@ -41,7 +38,7 @@ const sendPasswordResetEmail = async (
   const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/redefinir-senha?token=${token}`;
 
   const info = await transporter.sendMail({
-    from: '"MercaFacil" <noreply@mercafacil.com>',
+    from: `"MercaFacil" <${process.env.SMTP_USER}>`,
     to: destinatario,
     subject: 'Redefinicao de senha - MercaFacil',
     html: `
