@@ -1,5 +1,9 @@
 import nodemailer from 'nodemailer';
 
+console.log('SMTP_HOST:', process.env.SMTP_HOST);
+console.log('SMTP_PORT:', process.env.SMTP_PORT);
+console.log('SMTP_USER:', process.env.SMTP_USER);
+
 const createTransporter = async () => {
   if (process.env.NODE_ENV === 'production') {
     return nodemailer.createTransport({
