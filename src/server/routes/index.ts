@@ -39,6 +39,7 @@ router.patch('/usuarios/perfil', ensureAuthenticated, UsuariosController.updateP
 router.patch('/usuarios/senha', ensureAuthenticated, UsuariosController.resetPasswordValidation, UsuariosController.resetPassword);
 router.get('/usuarios/perfil', ensureAuthenticated, UsuariosController.getById);
 router.delete('/usuarios/me', ensureAuthenticated, UsuariosController.deleteById);
+router.delete('/usuarios/me/cancelar-exclusao', ensureAuthenticated, UsuariosController.cancelarExclusao); // novo
 
 // ─── Mercados (público/comerciante) ───────────────────────────────────────────
 router.get('/mercados', ensureAuthenticated, MercadosController.getAllValidation, MercadosController.getAll);
@@ -58,8 +59,8 @@ router.patch('/admin/usuarios/:id/ativo', ensureAuthenticated, UsuariosControlle
 router.get('/admin/usuarios', ensureAuthenticated, UsuariosController.getAllAdminValidation, UsuariosController.getAllAdmin);
 
 router.get('/admin/mercados', ensureAuthenticated, MercadosController.getAllAdminValidation, MercadosController.getAllAdmin);
-router.delete('/admin/mercados/:id', ensureAuthenticated, MercadosController.deleteByIdAdminValidation, MercadosController.deleteByIdAdmin);   
-router.patch('/admin/mercados/:id/ativo', ensureAuthenticated, MercadosController.toggleAtivoMercadoValidation, MercadosController.toggleAtivoMercado); 
+router.delete('/admin/mercados/:id', ensureAuthenticated, MercadosController.deleteByIdAdminValidation, MercadosController.deleteByIdAdmin);
+router.patch('/admin/mercados/:id/ativo', ensureAuthenticated, MercadosController.toggleAtivoMercadoValidation, MercadosController.toggleAtivoMercado);
 
 router.get('/admin/reservas', ensureAuthenticated, ReservasController.getAllAdmin);
 

@@ -40,4 +40,61 @@ const sendPasswordResetEmail = async (
   });
 };
 
-export const EmailService = { sendPasswordResetEmail };
+// ─── Notifica o mercado que uma reserva foi cancelada por exclusão de conta ───
+const sendReservaCanceladaPorExclusaoEmail = async (
+  emailMercado: string,
+  nomeMercado: string,
+  reservaId: number,
+  codigoRetirada: string,
+  dataRetirada: string,
+): Promise<void> => {
+  const dataFormatada = new Date(dataRetirada).toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  await resend.emails.send({
+    from: 'MercaFacil <onboarding@resend.dev>',
+    to: emailMercado,
+    subject: `Reserva #${reservaId} cancelada - Cliente encerrou a conta`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto;">
+        <h2 style="color: #2e7d32;">MercaFacil</h2>
+        <p>Ola, <strong>${nomeMercado}</strong>!</p>
+        <p>
+          Informamos que a reserva abaixo foi <strong>cancelada automaticamente</strong>
+          porque o cliente encerrou sua conta na plataforma.
+        </p>
+        <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+          <tr style="background-color: #f5f5f5;">
+            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Reserva</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">#${reservaId}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Codigo de retirada</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">${codigoRetirada}</td>
+          </tr>
+          <tr style="background-color: #f5f5f5;">
+            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">Data de retirada prevista</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">${dataFormatada}</td>
+          </tr>
+        </table>
+        <p style="color: #666; font-size: 13px;">
+          O estoque dos produtos reservados ja foi restituido automaticamente.
+          Nenhuma acao e necessaria da sua parte.
+        </p>
+        <p style="color: #666; font-size: 12px;">
+          Em caso de duvidas, entre em contato com o suporte da plataforma.
+        </p>
+      </div>
+    `,
+  });
+};
+
+export const EmailService = {
+  sendPasswordResetEmail,
+  sendReservaCanceladaPorExclusaoEmail,
+};

@@ -47,11 +47,12 @@ export const signUpCliente = async (
   res: Response
 ) => {
   const result = await AuthProvider.create({
-    ...req.body,
-    cpf: req.body.cpf.replace(/\D/g, ''),
-    role: 'CLIENTE',
-    ativo: true,
-  });
+  ...req.body,
+  cpf: req.body.cpf.replace(/\D/g, ''),
+  role: 'CLIENTE',
+  ativo: true,
+  aguardando_exclusao: false,
+});
 
   if (result instanceof Error) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({

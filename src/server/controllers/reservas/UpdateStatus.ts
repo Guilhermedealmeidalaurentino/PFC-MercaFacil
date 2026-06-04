@@ -87,5 +87,9 @@ export const updateStatus = async (
     comerciante instanceof Error ? '' : comerciante.email,
     mercado.nome_mercado,
   );
-  return res.status(StatusCodes.NO_CONTENT).send();
+  if (result.contaExcluida) {
+  return res.status(StatusCodes.OK).json({ contaExcluida: true });
+}
+
+return res.status(StatusCodes.NO_CONTENT).send();
 };

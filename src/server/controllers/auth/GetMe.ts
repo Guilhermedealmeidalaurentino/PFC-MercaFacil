@@ -1,3 +1,5 @@
+// src/server/controllers/auth/GetMe.ts
+
 import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { AuthProvider } from '../../database/providers/auth';
@@ -30,6 +32,7 @@ export const getMe = async (
     nome: result.nome,
     email: result.email,
     role: result.role,
+    aguardando_exclusao: result.aguardando_exclusao ?? false,
     mercado,
   });
 };

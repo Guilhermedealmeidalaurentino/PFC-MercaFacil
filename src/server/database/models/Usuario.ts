@@ -7,4 +7,5 @@ export interface IUsuario {
   telefone?: string;
   role: 'ADMIN' | 'CLIENTE' | 'MERCADO';
   ativo: boolean;
+  aguardando_exclusao: boolean;
 }

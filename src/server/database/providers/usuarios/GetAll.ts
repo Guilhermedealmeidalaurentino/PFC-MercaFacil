@@ -15,9 +15,11 @@ export const getAll = async (
         'id',
         'nome',
         'email',
+        'cpf',
         'telefone',
         'role',
         'ativo',
+        'aguardando_exclusao', 
       ])
       .where((builder) => {
         if (filter) {
@@ -30,15 +32,15 @@ export const getAll = async (
       .offset((page - 1) * limit)
       .limit(limit)
       .orderBy('id', 'desc');
-      
+
     return result;
-    
+
   } catch (error) {
-    
+
     console.log(error);
     return new Error(
       'Erro ao listar usuários'
     );
   }
-  
+
 };

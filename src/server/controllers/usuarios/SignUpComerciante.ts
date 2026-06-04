@@ -140,9 +140,9 @@ export const signUpComerciante = async (
           telefone,
           role: 'MERCADO',
           ativo: true,
+          aguardando_exclusao: false, 
         })
         .returning('id');
-
       const [mercado] = await trx(ETablesNames.mercado)
         .insert({
           usuario_id: usuario.id,

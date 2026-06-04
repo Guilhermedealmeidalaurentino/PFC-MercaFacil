@@ -14,6 +14,7 @@ export const getByEmail = async (
         'senha',
         'role',
         'ativo',
+        'aguardando_exclusao',  // ← adicionar essa linha
       ])
       .where('email', '=', email)
       .first();

@@ -20,6 +20,7 @@ export const getById = async (
         'telefone',
         'role',
         'ativo',
+        'aguardando_exclusao', 
       ])
       .where('id', '=', id)
       .first();

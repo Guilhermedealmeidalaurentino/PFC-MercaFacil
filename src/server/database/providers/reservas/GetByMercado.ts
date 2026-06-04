@@ -14,9 +14,11 @@ export const getByMercado = async (
         'reserva.status',
         'reserva.codigo_retirada',
         'reserva.data_reserva',
-        'reserva.data_retirada'
+        'reserva.data_retirada',
+        'usuario.nome as nome_cliente'
       )
       .join(ETablesNames.mercado, 'reserva.mercado_id', 'mercado.id')
+      .join(ETablesNames.usuario, 'reserva.cliente_id', 'usuario.id')
       .where('reserva.mercado_id', mercado_id)
       .orderBy('reserva.data_retirada', 'asc');
 

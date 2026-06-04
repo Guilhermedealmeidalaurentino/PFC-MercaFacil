@@ -37,6 +37,7 @@ export const signUpAdmin = async (
     ...req.body,
     role: 'ADMIN',
     ativo: true,
+    aguardando_exclusao: false,
   });
 
   if (result instanceof Error) {

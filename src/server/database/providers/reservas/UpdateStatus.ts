@@ -1,3 +1,5 @@
+// src/server/database/providers/reservas/UpdateStatus.ts
+
 import { Knex } from '../../knex';
 import { ETablesNames } from '../../ETablesNames';
 import { IReserva } from '../../models';
@@ -7,7 +9,7 @@ export const updateStatus = async (
   mercado_id: number,
   status: IReserva['status'],
   motivo_cancelamento?: string,
-): Promise<void | Error> => {
+): Promise<{ contaExcluida: boolean } | Error> => {
   try {
     const reserva = await Knex(ETablesNames.reserva)
       .where('id', reserva_id)
@@ -53,12 +55,47 @@ export const updateStatus = async (
         });
       }
     }
+
     await Knex(ETablesNames.reserva)
       .where('id', reserva_id)
       .update({
         status,
         ...(motivo_cancelamento ? { motivo_cancelamento } : {}),
       });
+
+    // ── Auto-exclusão: se o mercado estava aguardando exclusão e acabou de
+    //    resolver sua última reserva ativa, deleta a conta automaticamente ────
+    if (status === 'RETIRADA' || status === 'CANCELADA') {
+    const mercado = await Knex(ETablesNames.mercado)
+      .where('id', mercado_id)
+      .first();
+
+    if (mercado) {
+      const usuario = await Knex(ETablesNames.usuario)
+        .where('id', mercado.usuario_id)
+        .first();
+
+      if (usuario?.aguardando_exclusao) {
+        const pendentes = await Knex(ETablesNames.reserva)
+          .where('mercado_id', mercado_id)
+          .whereIn('status', ['PENDENTE', 'CONFIRMADA'])
+          .count('id as total')
+          .first();
+
+        const total = Number(pendentes?.total ?? 0);
+
+        if (total === 0) {
+          await Knex(ETablesNames.usuario)
+            .where('id', mercado.usuario_id)
+            .delete();
+
+          return { contaExcluida: true };  // ← sinaliza ao controller
+        }
+      }
+    }
+  }
+
+  return { contaExcluida: false };
 
   } catch (error) {
     console.log(error);

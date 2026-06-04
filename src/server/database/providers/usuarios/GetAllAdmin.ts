@@ -9,7 +9,16 @@ export const getAllAdmin = async (
 ): Promise<Omit<IUsuario, 'senha'>[] | Error> => {
   try {
     const result = await Knex(ETablesNames.usuario)
-      .select(['id', 'nome', 'email', 'telefone', 'cpf', 'role', 'ativo'])
+      .select([
+        'id',
+        'nome',
+        'email',
+        'cpf',
+        'telefone',
+        'role',
+        'ativo',
+        'aguardando_exclusao', 
+      ])
       .where((builder) => {
         if (filter) {
           builder
