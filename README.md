@@ -110,12 +110,6 @@ cd PFC-MercaFacil
 ### Instalar dependências
 
 ```bash
-npm install
-```
-
-ou
-
-```bash
 yarn
 ```
 
@@ -131,7 +125,7 @@ RESEND_API_KEY=
 ### Executar projeto
 
 ```bash
-npm run dev
+yarn dev
 ```
 ---
 
