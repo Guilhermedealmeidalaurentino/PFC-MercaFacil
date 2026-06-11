@@ -9,7 +9,7 @@ export const ReservaCodeService = {
   },
 
   validarDataRetirada: (
-  dataEscolhida: string, // agora vem "2026-05-29T14:30:00"
+  dataEscolhida: string, 
   horario_abertura: string,
   horario_fechamento: string,
 ): Date | Error => {

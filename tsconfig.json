@@ -8,8 +8,11 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "./build",
     "rootDir": "./src",
-    "typeRoots": ["./node_modules/@types", "./src/@types"]
+    "typeRoots": ["./node_modules/@types", "./src/@types"],
+    "types": ["jest", "node"]
+    
   },
+  
   "ts-node": {
     "files": true 
   },

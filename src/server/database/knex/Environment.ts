@@ -4,9 +4,8 @@ import path from 'path';
 
 dotenv.config({ path: path.resolve(__dirname, '..', '..', '..', '..', '.env') });
 
-
 export const development: Knex.Config = {
-   client: 'pg',
+  client: 'pg',
   migrations: {
     directory: path.resolve(__dirname, '..', 'migrations'),
   },
@@ -19,7 +18,7 @@ export const development: Knex.Config = {
     database: process.env.DATABASE_NAME,
     password: process.env.DATABASE_PASSWORD,
     port: Number(process.env.DATABASE_PORT || 5432),
-    },
+  },
 };
 
 export const test: Knex.Config = {
